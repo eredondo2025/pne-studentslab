@@ -1,0 +1,4 @@
+The error is located in line 11, were the program can't be executed because as it shown in the output
+'ZeroDivisionError', and it is caused when the value of 't1' is 0. This will happen anytime that a and c
+takes the same value because of the substraction.
+That's why the results 1,3,4 are well computed.
