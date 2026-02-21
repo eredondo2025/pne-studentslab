@@ -1,7 +1,7 @@
 import Seq0
 FOLDER = "../sequences/"
 
-gene_list = ["ADA", "FRAT1", "FXN", "U5"]
+gene_list = ["U5", "ADA", "FRAT1", "FXN"]
 
 print("-----| Exercise 3 |------")
 
@@ -11,4 +11,4 @@ for gene in gene_list:
     sequence = Seq0.seq_read_fasta(full_path)
     length = Seq0.seq_len(sequence)
 
-    print("Gene: ", gene, "-> Length: ", length)
+    print("Genes:", gene, "-> Length:", length)

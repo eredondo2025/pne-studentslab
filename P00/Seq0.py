@@ -9,9 +9,10 @@ def seq_read_fasta(filename):
     content = file_path.read_text()
     lines = content.splitlines()
 
-    body = "".join(lines[1:])
+    body = [line.strip() for line in lines[1:] if line.strip()]
+    clean_body = "".join(body)
 
-    return body
+    return clean_body
 
 def seq_len(seq):
     return len(seq)
