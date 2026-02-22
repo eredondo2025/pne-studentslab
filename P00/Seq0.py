@@ -38,3 +38,13 @@ def seq_reverse(seq, n):
     reverse_fragment = fragment[::-1]
 
     return reverse_fragment
+
+
+def seq_complement(seq):
+    complement_map = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    complement_seq = ""
+
+    for base in seq:
+        complement_seq += complement_map[base]
+
+    return complement_seq
