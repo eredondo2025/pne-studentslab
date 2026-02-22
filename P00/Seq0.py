@@ -23,3 +23,12 @@ def seq_count_base(seq, base):
         if b == base:
             count += 1
     return count
+
+
+def seq_count(seq):
+    counts = {'A': 0, 'C': 0, 'T': 0, 'G': 0}
+    for base in seq:
+        if base in counts:
+            counts[base] += 1
+
+    return counts
