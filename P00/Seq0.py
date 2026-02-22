@@ -16,3 +16,10 @@ def seq_read_fasta(filename):
 
 def seq_len(seq):
     return len(seq)
+
+def seq_count_base(seq, base):
+    count = 0
+    for b in seq:
+        if b == base:
+            count += 1
+    return count
