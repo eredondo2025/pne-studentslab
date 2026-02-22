@@ -32,3 +32,9 @@ def seq_count(seq):
             counts[base] += 1
 
     return counts
+
+def seq_reverse(seq, n):
+    fragment = seq[:n]
+    reverse_fragment = fragment[::-1]
+
+    return reverse_fragment
