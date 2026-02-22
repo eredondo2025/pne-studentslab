@@ -1,14 +1,14 @@
 import Seq0
-
 FOLDER = "../sequences/"
 gene_list = ["U5", "ADA", "FRAT1", "FXN"]
 
-print("-----| Exercise 5 |------")
+print("-----| Exercise 8 |------")
 
 for gene in gene_list:
     filename = FOLDER + gene + ".txt"
     sequence = Seq0.seq_read_fasta(filename)
 
-    d_bases = Seq0.seq_count(sequence)
+    counts = Seq0.seq_count(sequence)
+    most_frequent = max(counts, key = counts.get)
 
-    print(f"Gene {gene}: {d_bases}")
+    print(f"Gene {gene}: Most frequent Base: {most_frequent}")
