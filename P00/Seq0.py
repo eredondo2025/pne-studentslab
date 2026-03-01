@@ -1,4 +1,3 @@
-from Seq0 import *
 def seq_ping():
     print("OK")
 
@@ -33,18 +32,13 @@ def seq_count(seq):
 
     return counts
 
-def seq_reverse(seq, n):
-    fragment = seq[:n]
-    reverse_fragment = fragment[::-1]
-
-    return reverse_fragment
+def seq_reverse(seq):
+    return seq[::-1]
 
 
 def seq_complement(seq):
     complement_map = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
     complement_seq = ""
-
     for base in seq:
-        complement_seq += complement_map[base]
-
+        complement_seq += complement_map.get(base, base)
     return complement_seq
