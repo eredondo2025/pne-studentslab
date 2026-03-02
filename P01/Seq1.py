@@ -1,18 +1,20 @@
 class Seq:
     def __init__(self, strbases=None):
+        self.valid = True
+        self.strbases = strbases if strbases is not None else ""
+
         if strbases is None:
             print("NULL sequence Created")
-            self.strbases = ""
             return
-        self.valid = True
+
         for base in strbases:
             if base not in "ACGT":
                 print("INVALID sequence!")
                 self.valid = False
                 break
+
         if self.valid:
             print("New sequence created!")
-        self.strbases = strbases
 
     def __len__(self):
         if self.strbases == "" or not self.valid:
@@ -25,3 +27,11 @@ class Seq:
         if not self.valid:
             return "ERROR"
         return self.strbases
+    def count_base(self):
+        if not self.valid or self.strbases == "":
+            return "A: 0,   C: 0,   T: 0,   G: 0"
+        a = self.strbases.count("A")
+        c = self.strbases.count("C")
+        t = self.strbases.count("T")
+        g = self.strbases.count("G")
+        return f"A: {a},   C: {c},   T: {t},   G: {g}"
