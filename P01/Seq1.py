@@ -35,3 +35,12 @@ class Seq:
         t = self.strbases.count("T")
         g = self.strbases.count("G")
         return f"A: {a},   C: {c},   T: {t},   G: {g}"
+
+    def count(self):
+        bases = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
+
+        if not self.valid or self.strbases == "":
+            return bases
+        for base in bases:
+            bases[base] = self.strbases.count(base)
+        return bases
