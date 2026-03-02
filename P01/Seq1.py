@@ -15,6 +15,8 @@ class Seq:
         self.strbases = strbases
 
     def __len__(self):
+        if self.strbases == "" or not self.valid:
+            return 0
         return len(self.strbases)
 
     def __str__(self):
