@@ -44,3 +44,10 @@ class Seq:
         for base in bases:
             bases[base] = self.strbases.count(base)
         return bases
+
+    def reverse(self):
+        if self.strbases == "":
+            return "NULL"
+        elif not self.valid:
+            return "ERROR"
+        return self.strbases[::-1]
