@@ -51,3 +51,11 @@ class Seq:
         elif not self.valid:
             return "ERROR"
         return self.strbases[::-1]
+
+    def complement(self):
+        if self.strbases == "":
+            return "NULL"
+        elif not self.valid:
+            return "ERROR"
+        mapping = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+        return "".join(mapping[base] for base in self.strbases)
