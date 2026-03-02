@@ -27,14 +27,12 @@ class Seq:
         if not self.valid:
             return "ERROR"
         return self.strbases
-    def count_base(self):
-        if not self.valid or self.strbases == "":
-            return "A: 0,   C: 0,   T: 0,   G: 0"
-        a = self.strbases.count("A")
-        c = self.strbases.count("C")
-        t = self.strbases.count("T")
-        g = self.strbases.count("G")
-        return f"A: {a},   C: {c},   T: {t},   G: {g}"
+
+    def count_base(self, sequence=None):
+        if sequence is None:
+            sequence = self.strbases
+
+        return {base: sequence.count(base) for base in 'ATCG'}
 
     def count(self):
         bases = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
@@ -59,3 +57,14 @@ class Seq:
             return "ERROR"
         mapping = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
         return "".join(mapping[base] for base in self.strbases)
+
+    def read_fasta(self, filename):
+        with open(filename, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line.startswith(">"):
+                    self.strbases += line
+
+        self.valid = all(base in 'ATCG' for base in self.strbases)
+        self.bases = self.count_base(self.strbases)
+
