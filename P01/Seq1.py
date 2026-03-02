@@ -68,3 +68,8 @@ class Seq:
         self.valid = all(base in 'ATCG' for base in self.strbases)
         self.bases = self.count_base(self.strbases)
 
+    def most_frequent_base(self):
+        if not self.valid or self.strbases == "":
+            return "ERROR"
+        return max(self.bases, key=self.bases.get)
+
