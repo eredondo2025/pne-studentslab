@@ -4,7 +4,14 @@ class Seq:
             print("NULL sequence Created")
             self.strbases = ""
             return
-        print("New sequence created!")
+        self.valid = True
+        for base in strbases:
+            if base not in "ACGT":
+                print("INVALID sequence!")
+                self.valid = False
+                break
+        if self.valid:
+            print("New sequence created!")
         self.strbases = strbases
 
     def __len__(self):
@@ -13,4 +20,6 @@ class Seq:
     def __str__(self):
         if self.strbases == "":
             return "NULL"
+        if not self.valid:
+            return "ERROR"
         return self.strbases
