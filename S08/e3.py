@@ -1,7 +1,7 @@
 import socket
 
 PORT = 8081
-IP = "212.128.255.64"
+IP = "212.128.255.89"
 
 while True:
     message = input("Enter your massge")
