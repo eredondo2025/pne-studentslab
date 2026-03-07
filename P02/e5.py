@@ -1,3 +1,4 @@
+from S08.server import message
 from Seq1 import Seq
 from Client0 import Client
 
@@ -7,8 +8,8 @@ EXERCISE = 5
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
 # -- Parameters of the server to talk to
-IP = "212.128.255.71" # your IP address
-PORT = 8080
+IP = "127.00.01" # your IP address
+PORT = 8081
 
 # -- Create a client object
 c = Client(IP, PORT)
@@ -18,11 +19,13 @@ FOLDER = "../sequences/"
 gene = "FRAT1.txt"
 base = s.read_fasta(FOLDER + gene)
 
-for i in range(0, 5):
-    l = base[10 * i : 10]
-    response = c.talk(str(l))
-
-    #TERMINAR POR AQUI
+for i in range(5):
+    start = i * 10
+    end = start + 10
+    fragment = base[start:end]
+    message = f"Fragment {i + 1}: {fragment}"
+    response = c.talk(str(message))
+    print(message)
 
 for gene in gene:
     s.read_fasta(FOLDER + gene)
