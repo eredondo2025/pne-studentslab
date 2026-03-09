@@ -8,8 +8,8 @@ EXERCISE = 5
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
 # -- Parameters of the server to talk to
-IP = "127.00.01" # your IP address
-PORT = 8081
+IP = "212.128.255.71" # your IP address
+PORT = 8080
 
 # -- Create a client object
 c = Client(IP, PORT)
@@ -24,12 +24,12 @@ for i in range(5):
     end = start + 10
     fragment = base[start:end]
     message = f"Fragment {i + 1}: {fragment}"
-    response = c.talk(str(message))
+    response = c.talk(message)
     print(message)
 
-for gene in gene:
-    s.read_fasta(FOLDER + gene)
-    print(f"Sending the {gene} Gene to the server...")
-    response = c.talk(str(s))
-    print(f"To server: {str(s)}")
-    print(f"From server: {response}")
+s.read_fasta(FOLDER + "FRAT1.txt")
+
+print(f"Sending the FRAT1.txt Gene to the server...")
+response = c.talk(str(s))
+print(f"To server: {str(s)}")
+print(f"From server: {response}")
