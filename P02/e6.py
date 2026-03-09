@@ -6,7 +6,7 @@ EXERCISE = 6
 
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
-IP = "212.128.255.71"
+IP = "212.128.255.90"
 # We create both clients
 c1 = Client(IP, 8080)
 c2 = Client(IP, 8081)
