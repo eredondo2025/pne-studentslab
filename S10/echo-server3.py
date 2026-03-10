@@ -59,5 +59,5 @@ while True:
             break
 
 print("The following clients has connected to the server:")
-for i, client in clients:
+for i, client in enumerate(clients):
     print(f"Client {i}: {client}")
