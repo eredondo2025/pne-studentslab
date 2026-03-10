@@ -6,18 +6,21 @@ EXERCISE = 6
 
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
-IP = "212.128.255.90"
+IP = "212.128.255.71"
 # We create both clients
 c1 = Client(IP, 8080)
 c2 = Client(IP, 8081)
 
 s = Seq()
-s.read_fasta("../sequences/FRAT1.txt")
+FOLDER = "../sequences/"
+gene = "FRAT1.txt"
+s.read_fasta(FOLDER + gene)
+base = s.strbases
 
 for i in range(10):
     start = i * 10
     end = start + 10
-    fragment = s[start:end]
+    fragment = base[start:end]
     n_fragment = i + 1
     message = f"Fragment {n_fragment}: {fragment}"
 

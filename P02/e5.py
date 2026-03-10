@@ -1,4 +1,3 @@
-from S08.server import message
 from Seq1 import Seq
 from Client0 import Client
 
@@ -8,7 +7,7 @@ EXERCISE = 5
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 
 # -- Parameters of the server to talk to
-IP = "212.128.255.90" # your IP address
+IP = "212.128.255.71" # your IP address
 PORT = 8080
 
 # -- Create a client object
@@ -17,7 +16,8 @@ c = Client(IP, PORT)
 s = Seq()
 FOLDER = "../sequences/"
 gene = "FRAT1.txt"
-base = s.read_fasta(FOLDER + gene)
+s.read_fasta(FOLDER + gene)
+base = s.strbases
 
 for i in range(5):
     start = i * 10
