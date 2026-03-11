@@ -1,5 +1,6 @@
 import socket
 import termcolor
+from P01.Seq1 import Seq
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -15,6 +16,8 @@ SEQUENCES = [
     "GATTACAATTACCA",
     "ACTGCTGGACTCTG"
 ]
+gene_list = ["U5.txt", "ADA.txt", "FRAT1.txt", "FXN.txt", "RNU6_269P.txt"]
+FOLDER = "../sequences/"
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -95,6 +98,20 @@ while True:
                     response = sequence[::-1] + "\n"
                     print(response.strip())
                     cs.send(response.encode())
+            elif command == "GENE":
+                if len(parts) > 1:
+                    termcolor.cprint("GENE", "green")
+                    gene_name = parts[1]
+                    s = Seq()
+                    print("Null seq created!")
 
+                    file = gene_name + ".txt"
+
+                    if file in gene_list:
+                        s.read_fasta(FOLDER + file)
+
+                    response = str(s) + "\n"
+                    print(response.strip())
+                    cs.send(response.encode())
         cs.close()
 
