@@ -87,6 +87,14 @@ while True:
                     response = "".join(list) + "\n"
                     print(response.strip())
                     cs.send(response.encode())
+            elif command == "REV":
+                if len(parts) > 1:
+                    termcolor.cprint("REV", "green")
+                    sequence = parts[1]
+                    print("New sequence created!")
+                    response = sequence[::-1] + "\n"
+                    print(response.strip())
+                    cs.send(response.encode())
 
         cs.close()
 
