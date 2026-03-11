@@ -74,7 +74,19 @@ while True:
 
                     print(response.strip())
                     cs.send(response.encode())
+            elif command == "COMP":
+                if len(parts) > 1:
+                    termcolor.cprint("COMP", "green")
+                    sequence = parts[1]
+                    print("New sequence created!")
 
+                    complement_base = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+                    list = []
+                    for base in sequence:
+                        list.append(complement_base.get(base, base))
+                    response = "".join(list) + "\n"
+                    print(response.strip())
+                    cs.send(response.encode())
 
         cs.close()
 
