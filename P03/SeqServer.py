@@ -59,6 +59,22 @@ while True:
                     response = SEQUENCES[index] + "\n"
                     print(response.strip())
                     cs.send(response.encode())
+            elif command == "INFO":
+                if len(parts) > 1:
+                    termcolor.cprint("INFO", "green")
+                    sequence = parts[1]
+                    total_len = len(sequence)
+                    print("New sequence created!")
+                    bases = ['A', 'C', 'G', 'T']
+                    response = f"Sequence: {sequence}\nTotal length: {total_len}\n"
+                    for base in bases:
+                        count = sequence.count(base)
+                        percentage = round((count / total_len),2) * 100
+                        response += f"{base}: {count} ({percentage}%)\n"
+
+                    print(response.strip())
+                    cs.send(response.encode())
+
 
         cs.close()
 
