@@ -16,36 +16,23 @@ def process_client(s):
 
     # -- Split the request messages into lines
     lines = req.split('\n')
+    if len(lines) > 0:
+        req_line = lines[0]
+        print(f"Request line: {req_line}")
 
-    # -- The request line is the first
-    req_line = lines[0]
+        if "/info/A" in req_line:
+            with open("A.html", "r", encoding="utf-8") as f:
+                body = f.read()
+            status_line = "HTTP/1.1 200 OK\n"
+        else:
+            body = ""
+            status_line = "HTTP/1.1 200 OK\n"
 
-    print("Request line: ", end="")
-    termcolor.cprint(req_line, "green")
+        header = "Content-Type: text/html\n"
+        header += f"Content-Length: {len(body)}\n"
 
-    # -- Generate the response message
-    # It has the following lines
-    # Status line
-    # header
-    # blank line
-    # Body (content to send)
-
-# NEW LINE!!
-    with open("A.html", "r", encoding="utf-8") as f:
-        body = f.read()
-
-    # -- Status line: We respond that everything is ok (200 code)
-    status_line = "HTTP/1.1 200 OK\n"
-
-    # -- Add the Content-Type header
-    header = "Content-Type: text/html\n"
-
-    # -- Add the Content-Length
-    header += f"Content-Length: {len(body)}\n"
-
-    # -- Build the message by joining together all the parts
-    response_msg = status_line + header + "\n" + body
-    cs.send(response_msg.encode())
+        response_msg = status_line + header + "\n" + body
+        cs.send(response_msg.encode())
 
 
 # -------------- MAIN PROGRAM
