@@ -1,0 +1,14 @@
+QUESTION 1:
+# The request line is: "GET /hello HTTP/1.1"
+# The RESOURCE (path) is: "/hello"
+
+QUESTION 2:
+# The request line is: "GET /file.html HTTP/1.1"
+# The RESOURCE (path) is: "/file.html"
+
+QUESTION 3:
+# The request line is: "GET /hi/there?name=virus&type=corona HTTP/1.1"
+# The RESOURCE (path) is: "/hi/there?name=virus&type=corona"
+
+What should be the URL that we have to write in the browser for accessing the /dna/u5 resource?
+    http://127.0.0.1:8080/dna/u5
