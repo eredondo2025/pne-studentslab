@@ -20,19 +20,14 @@ def process_client(s):
         req_line = lines[0]
         print(f"Request line: {req_line}")
 
-        body = """<!DOCTYPE html>
-        <html lang="en" dir="ltr">
-          <head>
-            <meta charset="utf-8">
-            <title>Green server</title>
-          </head>
-          <body style="background-color: lightgreen;">
-            <h1>GREEN SERVER</h1>
-            <p>I am the Green Server! :-)</p>
-          </body>
-        </html>"""
+        if "/info/A" in req_line:
+            with open("A.html", "r", encoding="utf-8") as f:
+                body = f.read()
+            status_line = "HTTP/1.1 200 OK\n"
+        else:
+            body = ""
+            status_line = "HTTP/1.1 200 OK\n"
 
-        status_line = "HTTP/1.1 200 OK\n"
         header = "Content-Type: text/html\n"
         header += f"Content-Length: {len(body)}\n"
 
