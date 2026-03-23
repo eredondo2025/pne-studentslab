@@ -2,10 +2,6 @@ import socket
 import termcolor
 from P01.Seq1 import Seq
 
-ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
 PORT = 8080
 IP = "127.0.0.1"
 
@@ -20,8 +16,6 @@ gene_list = ["U5.txt", "ADA.txt", "FRAT1.txt", "FXN.txt", "RNU6_269P.txt"]
 FOLDER = "../sequences/"
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 ls.bind((IP, PORT))
 
