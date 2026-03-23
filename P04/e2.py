@@ -21,15 +21,9 @@ def process_client(s):
         print(f"Request line: {req_line}")
 
         if "/info/A" in req_line:
-            with open("A.html", "r", encoding="utf-8") as f:
+            with open("html/info/A.html", "r", encoding="utf-8") as f:
                 body = f.read()
             status_line = "HTTP/1.1 200 OK\n"
-
-        elif "/info/C" in req_line:
-            with open("C.html", "r", encoding="utf-8") as f:
-                body = f.read()
-            status_line = "HTTP/1.1 200 OK\n"
-
         else:
             body = ""
             status_line = "HTTP/1.1 200 OK\n"
