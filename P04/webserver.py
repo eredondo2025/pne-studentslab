@@ -26,22 +26,22 @@ def process_client(s):
             resource = "/"
 
         if resource == "/":
-            file_to_open = "index.html"
+            file_to_open = "html/index.html"
             status_line = "HTTP/1.1 200 OK\n"
         elif resource == "/info/A":
-            file_to_open = "A.html"
+            file_to_open = "html/info/A.html"
             status_line = "HTTP/1.1 200 OK\n"
         elif resource == "/info/C":
-            file_to_open = "C.html"
+            file_to_open = "html/info/C.html"
             status_line = "HTTP/1.1 200 OK\n"
         elif resource == "/info/G":
-            file_to_open = "G.html"
+            file_to_open = "html/info/G.html"
             status_line = "HTTP/1.1 200 OK\n"
         elif resource == "/info/T":
-            file_to_open = "T.html"
+            file_to_open = "html/info/T.html"
             status_line = "HTTP/1.1 200 OK\n"
         else:
-            file_to_open = "error.html"
+            file_to_open = "html/error.html"
             status_line = "HTTP/1.1 404 Not Found\n"
 
         try:
