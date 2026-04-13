@@ -3,65 +3,69 @@ import socketserver
 import os
 from pathlib import Path
 
-# Define the Server's port
+# -- Server port definition
 PORT = 8081
 
-# -- This is for preventing the error: "Port already in use"
+# -- Prevent "Port already in use" error
 socketserver.TCPServer.allow_reuse_address = True
 
 
-# Class with our Handler. It is derived from BaseHTTPRequestHandler
 class TestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
-        # Define the root folder for the HTML files
-        root_folder = Path(os.getcwd()) / "P05" / "html"
+        # 1. Define the base directory where this script is located
+        # Using __file__ avoids duplicated path errors (e.g., P05/P05)
+        base_dir = Path(__file__).parent
+        root_folder = base_dir / "html"
 
-        # Handle the request for the main page
-        if self.path == "/":
-            self.path = "/index.html"
+        # 2. Handle the requested path
+        if self.path == "/" or self.path == "":
+            relative_path = "index.html"
+        else:
+            # Remove the leading slash so Path join works correctly
+            relative_path = self.path.lstrip("/")
 
-        # Define the file path
-        file_path = root_folder / self.path.lstrip("/")
+        # 3. Build the full path to the requested file
+        file_path = root_folder / relative_path
 
-        # Check if the file exists
+        # 4. Check if the file exists and serve it
         if file_path.exists() and file_path.is_file():
-            # Send a 200 OK response
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
 
-            # Open the requested file and write it to the response
             with open(file_path, 'rb') as file:
                 self.wfile.write(file.read())
         else:
-            # If the file doesn't exist, serve the error page
-            self.serve_error_page()
+            # If the file does not exist, serve the custom error page
+            self.serve_error_page(root_folder)
 
-    def serve_error_page(self):
-        # Send a 404 error response
+    def serve_error_page(self, root_folder):
         self.send_response(404)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-        # Open and serve error.html
-        error_file = Path(os.getcwd()) / "P05" / "html" / "error.html"
-        with open(error_file, 'rb') as file:
-            self.wfile.write(file.read())
+        # Look for error.html inside the html folder
+        error_file = root_folder / "error.html"
+
+        if error_file.exists():
+            with open(error_file, 'rb') as file:
+                self.wfile.write(file.read())
+        else:
+            # Fallback response if error.html is missing
+            self.wfile.write(b"<html><body><h1>Error 404: File not found</h1></body></html>")
 
 
 # ------------------------
 # - Server MAIN program
 # ------------------------
-# -- Set the new handler
 Handler = TestHandler
 
-# -- Open the socket server
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
     print(f"Serving at PORT {PORT}")
+    # Print the path to verify the server is looking in the correct folder
+    print(f"Root folder: {Path(__file__).parent / 'html'}")
 
-    # -- Main loop: Attend the client. Whenever there is a new
-    # -- client, the handler is called
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
