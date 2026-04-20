@@ -1,18 +1,45 @@
 <!DOCTYPE html>
-    <html lang="en">
-        <head>
-           <meta charset="UTF-8">
-           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-           <title>SEQ2 Server</title>
-        </head>
-        <body>
-           <h1>SEQ2 server</h1>
-           <p>Access to the Server</p>
-           <p>
-                Is the server alive?
-                <a href="/ping">
-                    <button class="ping-button">PING</button>
-                </a>
-           </p>
-        </body>
-    </html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEQ2 Server</title>
+</head>
+<body>
+
+```
+<h1>SEQ2 server</h1>
+
+<p>Access to the Server</p>
+
+<hr>
+
+<!-- PING -->
+<p>
+    Is the server alive?
+    <a href="/ping">
+        <button>PING</button>
+    </a>
+</p>
+
+<hr>
+
+<!-- GET SEQUENCE -->
+<form action="/get" method="get">
+    <p>Get a Sequence. Select sequence number:</p>
+
+    <select name="seq_num">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+
+    <button type="submit">GET</button>
+</form>
+```
+
+</body>
+</html>

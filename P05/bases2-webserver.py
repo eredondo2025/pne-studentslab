@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 # -- Server port definition
-PORT = 8081
+PORT = 8080
 
 # -- Prevent "Port already in use" error
 socketserver.TCPServer.allow_reuse_address = True
