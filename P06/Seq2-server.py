@@ -1,6 +1,6 @@
 import http.server
 import socketserver
-import os
+from urllib.parse import urlparse, parse_qs
 from pathlib import Path
 
 # -- Server port definition
@@ -14,18 +14,24 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         # 1. Define the base directory where this script is located
-        # Using __file__ avoids duplicated path errors (e.g., P05/P05)
         base_dir = Path(__file__).parent
         root_folder = base_dir / "html"
 
-        # 2. Handle the requested path
-        if self.path == "/" or self.path == "":
+        # 2. Handle /ping and /get endpoints
+        parsed_url = urlparse(self.path)
+        path = parsed_url.path
+        query = parse_qs(parsed_url.query)
+
+        if path == "/" or path == "":
             relative_path = "index.html"
-        elif self.path == "/ping":
+        elif path == "/ping":
             self.serve_ping_page(root_folder)
             return
+        elif path == "/get" and "seq_num" in query:
+            seq_num = int(query["seq_num"][0])  # Get the sequence number from the URL query
+            self.serve_sequence(root_folder, seq_num)
+            return
         else:
-            # Remove the leading slash so Path join works correctly
             relative_path = self.path.lstrip("/")
 
         # 3. Build the full path to the requested file
@@ -60,6 +66,40 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         """
         self.wfile.write(response.encode())
 
+    def serve_sequence(self, root_folder, seq_num):
+        # Handle the '/get' endpoint, returning the selected sequence
+        sequences = [
+            [1, 1, 1],                # Sequence 0
+            [1, 2, 3, 5, 8],          # Sequence 1
+            [2, 4, 6, 8, 10],         # Sequence 2
+            [1, 4, 9, 16, 25],        # Sequence 3
+            [1, 3, 6, 10, 15]         # Sequence 4
+        ]
+
+        # Check if seq_num is valid
+        if 0 <= seq_num < len(sequences):
+            sequence = sequences[seq_num]
+            sequence_str = ", ".join(map(str, sequence))
+
+            # Create response with the sequence
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+
+            response = f"""
+            <html>
+                <head><title>Sequence {seq_num}</title></head>
+                <body>
+                    <h1>Sequence {seq_num}:</h1>
+                    <p>{sequence_str}</p>
+                    <a href="/">Go back to main page</a>
+                </body>
+            </html>
+            """
+            self.wfile.write(response.encode())
+        else:
+            self.serve_error_page(root_folder)
+
     def serve_error_page(self, root_folder):
         self.send_response(404)
         self.send_header('Content-type', 'text/html')
@@ -75,15 +115,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             # Fallback response if error.html is missing
             self.wfile.write(b"<html><body><h1>Error 404: File not found</h1></body></html>")
 
-
-# ------------------------
 # - Server MAIN program
-# ------------------------
 Handler = TestHandler
 
 with socketserver.TCPServer(("", PORT), Handler) as httpd:
     print(f"Serving at PORT {PORT}")
-    # Print the path to verify the server is looking in the correct folder
     print(f"Root folder: {Path(__file__).parent / 'html'}")
 
     try:
