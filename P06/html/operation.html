@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Operation Service</title>
+</head>
+<body>
+    <form action="/operation" method="get">
+        <p>Write a sequence: <input type="text" name="seq" required></p>
+
+        <p>Select operation
+            <input type="radio" name="op" value="info" checked> Info
+            <input type="radio" name="op" value="comp"> Comp
+            <input type="radio" name="op" value="rev"> Rev
+        </p>
+
+        <p>Perform operation: <button type="submit">OPERATE!</button></p>
+    </form>
+
+    <hr>
+    <a href="/">Back to main page</a>
+</body>
+</html>
