@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Species List</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f6f9; }
+        h1 { color: #2c3e50; }
+        ul { list-style-type: square; line-height: 1.6; }
+        li { font-size: 16px; color: #34495e; }
+        .back-link { display: inline-block; margin-top: 20px; color: #3498db; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Available Species in Ensembl Database</h1>
+    <p>Total items displayed: <strong>{limit_info}</strong></p>
+    <ul>
+        {species_list}
+    </ul>
+    <a class="back-link" href="/">&larr; Back to Main Portal</a>
+</body>
+</html>
