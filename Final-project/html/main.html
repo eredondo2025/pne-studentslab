@@ -36,5 +36,47 @@
         <input type="submit" value="Send">
     </form>
 
+    <form action="/geneLookup" method="GET">
+        <p><strong>4) select a human's gene to get the gene's id:</strong></p>
+        <label>Select a gene:</label>
+        <input type="text" name="gene">
+        <input type="submit" value="SEND">
+    </form>
+
+    <form action="/geneSeq" method="GET">
+        <p><strong>5) select a human's gene to get the gene's sequence:</strong></p>
+        <label>Select a gene:</label>
+        <input type="text" name="gene">
+        <input type="submit" value="SEND">
+    </form>
+
+    <form action="/geneInfo" method="GET">
+        <p><strong>6) select a human's gene to get the gene's information:</strong></p>
+        <label>Select a gene:</label>
+        <input type="text" name="gene">
+        <input type="submit" value="SEND">
+    </form>
+
+    <form action="/geneCalc" method="GET">
+        <p><strong>7) select a human's gene to get the gene's length and percentage of bases:</strong></p>
+        <label>Select a gene:</label>
+        <input type="text" name="gene">
+        <input type="submit" value="SEND">
+    </form>
+
+    <form action="/geneList" method="GET">
+        <p><strong>8) human genes that overlap a region:</strong></p>
+        <label>Select the chromosome:</label>
+        <input type="text" name="chromo">
+        <br><br>
+        <label>Select a starting point:</label>
+        <input type="text" name="start">
+        <br><br>
+        <label>Select an ending point:</label>
+        <input type="text" name="end">
+        <br><br>
+        <input type="submit" value="SEND">
+    </form>
+
 </body>
 </html>

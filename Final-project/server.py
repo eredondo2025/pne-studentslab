@@ -59,21 +59,18 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         if not input_name:
             return ""
 
-        # Fetch the complete list of valid species from Ensembl dynamically
         species_url = "https://rest.ensembl.org/info/species"
         database_json = self.fetch_ensembl_data(species_url)
 
         if not database_json or "species" not in database_json:
-            return input_name  # Fallback to current input if API connection fails
+            return input_name
 
-        # Scan all registry entries to find a match across scientific names, common names, or aliases
         for entry in database_json["species"]:
-            scientific_name = entry.get("name", "")  # e.g., "homo_sapiens"
-            common_name = entry.get("common_name", "").lower().replace(" ", "_")  # e.g., "human"
-            display_name = entry.get("display_name", "").lower().replace(" ", "_")  # e.g., "human"
+            scientific_name = entry.get("name", "")
+            common_name = entry.get("common_name", "").lower().replace(" ", "_")
+            display_name = entry.get("display_name", "").lower().replace(" ", "_")
             aliases = [alias.lower().replace(" ", "_") for alias in entry.get("aliases", [])]
 
-            # If the user typed any match, return the official scientific name required by assembly_info
             if input_name in (scientific_name, common_name, display_name) or input_name in aliases:
                 return scientific_name
 
@@ -81,7 +78,7 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         """
-        Main HTTP GET Routing Manager.
+        Main HTTP GET Routing Manager. Matches all 8 endpoints from basic and medium levels.
         """
         parsed_url = urlparse(self.path)
         path = parsed_url.path
@@ -97,6 +94,16 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.handle_karyotype(query_params)
         elif path == "/chromosomeLength":
             self.handle_chromosome_length(query_params)
+        elif path == "/geneLookup":
+            self.handle_gene_lookup(query_params)
+        elif path == "/geneSeq":
+            self.handle_gene_seq(query_params)
+        elif path == "/geneInfo":
+            self.handle_gene_info(query_params)
+        elif path == "/geneCalc":
+            self.handle_gene_calc(query_params)
+        elif path == "/geneList":
+            self.handle_gene_list(query_params)
         else:
             self.render_error(404)
 
@@ -109,10 +116,9 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def handle_list_species(self, params):
         """
-        Endpoint: /listSpecies - Lists available species from Ensembl.
+        Endpoint 1: /listSpecies
         """
         limit_val = params.get("limit", [""])[0]
-
         target_url = "https://rest.ensembl.org/info/species"
         data = self.fetch_ensembl_data(target_url)
 
@@ -121,7 +127,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             return
 
         species_entries = data["species"]
-
         if limit_val.isdigit():
             limit = int(limit_val)
             species_entries = species_entries[:limit]
@@ -140,11 +145,9 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def handle_karyotype(self, params):
         """
-        Endpoint: /karyotype - Resolves chromosomal structures for a given species.
+        Endpoint 2: /karyotype
         """
         raw_species = params.get("species", params.get("specie", [""]))[0]
-
-        # Dynamically translate the incoming string via Ensembl mapping list
         species = self.clean_species_name(raw_species)
 
         if not species:
@@ -177,12 +180,10 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def handle_chromosome_length(self, params):
         """
-        Endpoint: /chromosomeLength - Returns total base pair length of a single chromosome.
+        Endpoint 3: /chromosomeLength
         """
         raw_species = params.get("species", params.get("specie", [""]))[0]
         chromo = params.get("chromo", [""])[0].strip()
-
-        # Dynamically translate the incoming string here too
         species = self.clean_species_name(raw_species)
 
         if not species or not chromo:
@@ -211,8 +212,53 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         html_output = template.replace("{species_name}", raw_species) \
             .replace("{chromosome_id}", chromo) \
             .replace("{chromosome_length}", str(matched_length))
-
         self.send_html_response(html_output)
+
+    # =========================================================================
+    # MEDIUM LEVEL ENDPOINTS (SERVICES 4 TO 8)
+    # =========================================================================
+
+    def handle_gene_lookup(self, params):
+        """
+        Endpoint 4: /geneLookup - Fetches stable identifier of a human gene symbol.
+        """
+        gene_symbol = params.get("gene", [""])[0].strip()
+        # TODO: Connect to Ensembl lookup endpoint to extract the stable ID string
+        self.send_html_response(f"<h1>Service 4 Lookup - Target Gene: {gene_symbol}</h1>")
+
+    def handle_gene_seq(self, params):
+        """
+        Endpoint 5: /geneSeq - Returns the raw nucleotide sequence of a human gene.
+        """
+        gene_symbol = params.get("gene", [""])[0].strip()
+        # TODO: Obtain stable identifier first, then call sequence REST API
+        self.send_html_response(f"<h1>Service 5 Sequence - Target Gene: {gene_symbol}</h1>")
+
+    def handle_gene_info(self, params):
+        """
+        Endpoint 6: /geneInfo - Returns start, end, length, id, and chromosome name.
+        """
+        gene_symbol = params.get("gene", [""])[0].strip()
+        # TODO: Extract structural location metadata from the gene payload
+        self.send_html_response(f"<h1>Service 6 Info - Target Gene: {gene_symbol}</h1>")
+
+    def handle_gene_calc(self, params):
+        """
+        Endpoint 7: /geneCalc - Counts base proportions using the custom 'Seq' class.
+        """
+        gene_symbol = params.get("gene", [""])[0].strip()
+        # TODO: Calculate base counts and overall percentages
+        self.send_html_response(f"<h1>Service 7 Calculation - Target Gene: {gene_symbol}</h1>")
+
+    def handle_gene_list(self, params):
+        """
+        Endpoint 8: /geneList - Retrieves names of human genes overlapping a region.
+        """
+        chromo = params.get("chromo", [""])[0].strip()
+        start = params.get("start", [""])[0].strip()
+        end = params.get("end", [""])[0].strip()
+        # TODO: Hit the overlap region endpoint with the coordinates
+        self.send_html_response(f"<h1>Service 8 Overlap List - Region {chromo}:{start}-{end}</h1>")
 
 
 if __name__ == "__main__":
