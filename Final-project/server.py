@@ -5,7 +5,7 @@ import socketserver
 import urllib.request
 from urllib.parse import urlparse, parse_qs
 
-PORT = 8080
+PORT = 8081
 
 
 class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
