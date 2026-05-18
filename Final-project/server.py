@@ -43,6 +43,17 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(html_content.encode("utf-8"))
 
+    def send_json_response(self, data_dict, status_code=200):
+        """
+        ADVANCED LEVEL: Sends pure structured JSON payloads to software clients.
+        """
+        self.send_response(status_code)
+        self.send_header("Content-type", "application/json; charset=utf-8")
+        self.end_headers()
+        # Convert dictionary to raw text string formatted as JSON
+        json_string = json.dumps(data_dict, indent=4)
+        self.wfile.write(json_string.encode("utf-8"))
+
     def render_error(self, status_code=404):
         """
         Displays the custom basic red error template.
@@ -75,6 +86,17 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
                 return scientific_name
 
         return input_name
+
+    def get_stable_id_by_gene_symbol(self, gene_symbol):
+        """
+        Helper method to resolve a gene symbol (e.g., FRAT1) into an Ensembl stable ID (ENSG...).
+        """
+        sanitized_gene = urllib.parse.quote(gene_symbol.strip())
+        url = f"https://rest.ensembl.org/lookup/symbol/homo_sapiens/{sanitized_gene}"
+        data = self.fetch_ensembl_data(url)
+        if data and "id" in data:
+            return data["id"]
+        return None
 
     def do_GET(self):
         """
@@ -215,49 +237,158 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_html_response(html_output)
 
     # =========================================================================
-    # MEDIUM LEVEL ENDPOINTS (SERVICES 4 TO 8)
+    # ADVANCED HYBRID ENDPOINTS (SERVICES 4 TO 6 FULLY IMPLEMENTED)
     # =========================================================================
 
     def handle_gene_lookup(self, params):
         """
         Endpoint 4: /geneLookup - Fetches stable identifier of a human gene symbol.
+        Supports web view or dynamic REST JSON output.
         """
         gene_symbol = params.get("gene", [""])[0].strip()
-        # TODO: Connect to Ensembl lookup endpoint to extract the stable ID string
-        self.send_html_response(f"<h1>Service 4 Lookup - Target Gene: {gene_symbol}</h1>")
+        is_json_requested = params.get("json", [""])[0] == "1"
+
+        if not gene_symbol:
+            self.render_error(400)
+            return
+
+        stable_id = self.get_stable_id_by_gene_symbol(gene_symbol)
+        if not stable_id:
+            self.render_error(404)
+            return
+
+        # ADVANCED LEVEL CHECK: If json=1 parameter is present, send data object
+        if is_json_requested:
+            json_payload = {"gene": gene_symbol, "id": stable_id}
+            self.send_json_response(json_payload)
+        else:
+            # Medium Level standard HTML view response
+            response_html = f"""
+            <html>
+            <body style="font-family: Arial; margin: 30px;">
+                <h2>Gene Lookup Result</h2>
+                <p>The stable identifier for gene <strong>{gene_symbol}</strong> is: <code>{stable_id}</code></p>
+                <p><a href="/">Back to Dashboard</a></p>
+            </body>
+            </html>
+            """
+            self.send_html_response(response_html)
 
     def handle_gene_seq(self, params):
         """
         Endpoint 5: /geneSeq - Returns the raw nucleotide sequence of a human gene.
+        Supports web view or dynamic REST JSON output.
         """
         gene_symbol = params.get("gene", [""])[0].strip()
-        # TODO: Obtain stable identifier first, then call sequence REST API
-        self.send_html_response(f"<h1>Service 5 Sequence - Target Gene: {gene_symbol}</h1>")
+        is_json_requested = params.get("json", [""])[0] == "1"
+
+        if not gene_symbol:
+            self.render_error(400)
+            return
+
+        stable_id = self.get_stable_id_by_gene_symbol(gene_symbol)
+        if not stable_id:
+            self.render_error(404)
+            return
+
+        seq_url = f"https://rest.ensembl.org/sequence/id/{stable_id}"
+        seq_data = self.fetch_ensembl_data(seq_url)
+
+        if not seq_data or "seq" not in seq_data:
+            self.render_error(404)
+            return
+
+        gene_sequence = seq_data["seq"]
+
+        # ADVANCED LEVEL CHECK
+        if is_json_requested:
+            json_payload = {"gene": gene_symbol, "id": stable_id, "sequence": gene_sequence}
+            self.send_json_response(json_payload)
+        else:
+            response_html = f"""
+            <html>
+            <body style="font-family: Arial; margin: 30px;">
+                <h2>Gene Sequence for {gene_symbol} ({stable_id})</h2>
+                <textarea rows="15" cols="80" readonly style="font-family: monospace;">{gene_sequence}</textarea>
+                <p><a href="/">Back to Dashboard</a></p>
+            </body>
+            </html>
+            """
+            self.send_html_response(response_html)
 
     def handle_gene_info(self, params):
         """
         Endpoint 6: /geneInfo - Returns start, end, length, id, and chromosome name.
+        Supports web view or dynamic REST JSON output.
         """
         gene_symbol = params.get("gene", [""])[0].strip()
-        # TODO: Extract structural location metadata from the gene payload
-        self.send_html_response(f"<h1>Service 6 Info - Target Gene: {gene_symbol}</h1>")
+        is_json_requested = params.get("json", [""])[0] == "1"
+
+        if not gene_symbol:
+            self.render_error(400)
+            return
+
+        sanitized_gene = urllib.parse.quote(gene_symbol)
+        url = f"https://rest.ensembl.org/lookup/symbol/homo_sapiens/{sanitized_gene}"
+        data = self.fetch_ensembl_data(url)
+
+        if not data or "id" not in data:
+            self.render_error(404)
+            return
+
+        start_pos = data.get("start", "Unknown")
+        end_pos = data.get("end", "Unknown")
+        chrom_name = data.get("seq_region_name", "Unknown")
+        stable_id = data.get("id", "Unknown")
+
+        try:
+            gene_length = int(end_pos) - int(start_pos) + 1
+        except Exception:
+            gene_length = "Unknown"
+
+        # ADVANCED LEVEL CHECK
+        if is_json_requested:
+            json_payload = {
+                "gene": gene_symbol,
+                "id": stable_id,
+                "chromosome": chrom_name,
+                "start": start_pos,
+                "end": end_pos,
+                "length": gene_length
+            }
+            self.send_json_response(json_payload)
+        else:
+            response_html = f"""
+            <html>
+            <body style="font-family: Arial; margin: 30px;">
+                <h2>Gene Information: {gene_symbol}</h2>
+                <ul>
+                    <li><strong>Ensembl ID:</strong> {stable_id}</li>
+                    <li><strong>Chromosome Name:</strong> {chrom_name}</li>
+                    <li><strong>Start Position:</strong> {start_pos}</li>
+                    <li><strong>End Position:</strong> {end_pos}</li>
+                    <li><strong>Calculated Length:</strong> {gene_length} base pairs</li>
+                </ul>
+                <p><a href="/">Back to Dashboard</a></p>
+            </body>
+            </html>
+            """
+            self.send_html_response(response_html)
 
     def handle_gene_calc(self, params):
         """
-        Endpoint 7: /geneCalc - Counts base proportions using the custom 'Seq' class.
+        Endpoint 7: /geneCalc - Fallback template for non-implemented medium services
         """
         gene_symbol = params.get("gene", [""])[0].strip()
-        # TODO: Calculate base counts and overall percentages
         self.send_html_response(f"<h1>Service 7 Calculation - Target Gene: {gene_symbol}</h1>")
 
     def handle_gene_list(self, params):
         """
-        Endpoint 8: /geneList - Retrieves names of human genes overlapping a region.
+        Endpoint 8: /geneList - Fallback template for non-implemented medium services
         """
         chromo = params.get("chromo", [""])[0].strip()
         start = params.get("start", [""])[0].strip()
         end = params.get("end", [""])[0].strip()
-        # TODO: Hit the overlap region endpoint with the coordinates
         self.send_html_response(f"<h1>Service 8 Overlap List - Region {chromo}:{start}-{end}</h1>")
 
 
@@ -265,7 +396,7 @@ if __name__ == "__main__":
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), EnsemblBioRequestHandler) as httpd:
         print(f"==================================================")
-        print(f" Server active at http://localhost:{PORT}/")
+        print(f" ADVANCED Server active at http://localhost:{PORT}/")
         print(f"==================================================")
         try:
             httpd.serve_forever()
