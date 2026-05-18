@@ -50,6 +50,35 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         template = self.read_html("error.html")
         self.send_html_response(template, status_code)
 
+    def clean_species_name(self, raw_name):
+        """
+        Dynamically resolves common names or scientific names into the official
+        Ensembl registry name by querying the global species database.
+        """
+        input_name = raw_name.strip().lower().replace(" ", "_").replace("+", "_")
+        if not input_name:
+            return ""
+
+        # Fetch the complete list of valid species from Ensembl dynamically
+        species_url = "https://rest.ensembl.org/info/species"
+        database_json = self.fetch_ensembl_data(species_url)
+
+        if not database_json or "species" not in database_json:
+            return input_name  # Fallback to current input if API connection fails
+
+        # Scan all registry entries to find a match across scientific names, common names, or aliases
+        for entry in database_json["species"]:
+            scientific_name = entry.get("name", "")  # e.g., "homo_sapiens"
+            common_name = entry.get("common_name", "").lower().replace(" ", "_")  # e.g., "human"
+            display_name = entry.get("display_name", "").lower().replace(" ", "_")  # e.g., "human"
+            aliases = [alias.lower().replace(" ", "_") for alias in entry.get("aliases", [])]
+
+            # If the user typed any match, return the official scientific name required by assembly_info
+            if input_name in (scientific_name, common_name, display_name) or input_name in aliases:
+                return scientific_name
+
+        return input_name
+
     def do_GET(self):
         """
         Main HTTP GET Routing Manager.
@@ -58,7 +87,9 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         path = parsed_url.path
         query_params = parse_qs(parsed_url.query)
 
-        if path == "/":
+        print(f"Console Log - Incoming request path: '{path}'")
+
+        if path == "/" or path == "" or path == "/index.html":
             self.handle_main_endpoint()
         elif path == "/listSpecies":
             self.handle_list_species(query_params)
@@ -82,7 +113,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         """
         limit_val = params.get("limit", [""])[0]
 
-        # Target official Ensembl endpoint with secure HTTPS protocol
         target_url = "https://rest.ensembl.org/info/species"
         data = self.fetch_ensembl_data(target_url)
 
@@ -92,7 +122,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
         species_entries = data["species"]
 
-        # Check if the user defined a numerical limit parameter
         if limit_val.isdigit():
             limit = int(limit_val)
             species_entries = species_entries[:limit]
@@ -100,7 +129,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         else:
             limit_info = "all records"
 
-        # Construct individual HTML list item nodes
         list_items_html = ""
         for entry in species_entries:
             display_name = entry.get("display_name", "Unknown")
@@ -114,8 +142,10 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
         """
         Endpoint: /karyotype - Resolves chromosomal structures for a given species.
         """
-        # Supports both parameter keys to handle potential form variations safely
-        species = params.get("species", params.get("specie", [""]))[0].strip()
+        raw_species = params.get("species", params.get("specie", [""]))[0]
+
+        # Dynamically translate the incoming string via Ensembl mapping list
+        species = self.clean_species_name(raw_species)
 
         if not species:
             self.render_error(400)
@@ -129,7 +159,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(400)
             return
 
-        # Separate and append only structural genomic chromosomal lines
         chromosomes = []
         for region in data["top_level_region"]:
             if region.get("coordinate_system") == "chromosome":
@@ -143,15 +172,18 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
                 list_badges_html += f"<li>Chromosome {chromo_name}</li>\n"
 
         template = self.read_html("karyotype.html")
-        html_output = template.replace("{species_name}", species).replace("{chromosome_badges}", list_badges_html)
+        html_output = template.replace("{species_name}", raw_species).replace("{chromosome_badges}", list_badges_html)
         self.send_html_response(html_output)
 
     def handle_chromosome_length(self, params):
         """
         Endpoint: /chromosomeLength - Returns total base pair length of a single chromosome.
         """
-        species = params.get("species", params.get("specie", [""]))[0].strip()
+        raw_species = params.get("species", params.get("specie", [""]))[0]
         chromo = params.get("chromo", [""])[0].strip()
+
+        # Dynamically translate the incoming string here too
+        species = self.clean_species_name(raw_species)
 
         if not species or not chromo:
             self.render_error(400)
@@ -165,7 +197,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(400)
             return
 
-        # Scan regions to locate the requested chromosome length data
         matched_length = None
         for region in data["top_level_region"]:
             if str(region.get("name")).lower() == chromo.lower():
@@ -177,7 +208,7 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             return
 
         template = self.read_html("length.html")
-        html_output = template.replace("{species_name}", species) \
+        html_output = template.replace("{species_name}", raw_species) \
             .replace("{chromosome_id}", chromo) \
             .replace("{chromosome_length}", str(matched_length))
 
@@ -185,7 +216,6 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    # Prevent socket block errors during local server deployments
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), EnsemblBioRequestHandler) as httpd:
         print(f"==================================================")

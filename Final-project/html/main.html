@@ -3,71 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome!!</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffdd; /* Light yellow background */
-            margin: 30px;
-            color: #000000;
-        }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-        h2 {
-            font-size: 22px;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        p {
-            font-size: 16px;
-            margin: 15px 0 5px 0;
-            font-weight: bold;
-        }
-        input[type="text"] {
-            width: 250px;
-            padding: 3px;
-            font-size: 14px;
-        }
-        input[type="submit"] {
-            margin-top: 8px;
-            padding: 2px 10px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        form {
-            margin-bottom: 25px;
-        }
-    </style>
 </head>
-<body>
+<body style="background-color: #ffffdd; font-family: Arial; margin: 30px;">
 
     <h1>Browsing Human and Vertebrates genome</h1>
     <h2>BASIC Level Services</h2>
 
     <form action="/listSpecies" method="GET">
-        <p>1)List of species in the genome database</p>
-        <label for="limit">Limit : </label>
-        <input type="text" id="limit" name="limit">
+        <p><strong>1)List of species in the genome database</strong></p>
+        <label>Limit : </label>
+        <input type="text" name="limit">
         <br>
         <input type="submit" value="Send">
     </form>
 
     <form action="/karyotype" method="GET">
-        <p>2)Information about the karyotype :</p>
-        <label for="species">Select the species : </label>
-        <input type="text" id="species" name="species" required>
+        <p><strong>2)Information about the karyotype :</strong></p>
+        <label>Select the species : </label>
+        <input type="text" name="species" required>
         <br>
         <input type="submit" value="Send">
     </form>
 
     <form action="/chromosomeLength" method="GET">
-        <p>3)Chromosome Length</p>
-        <label for="species_len">Select the species : </label>
-        <input type="text" id="species_len" name="species" required>
+        <p><strong>3)Chromosome Length</strong></p>
+        <label>Select the species : </label>
+        <input type="text" name="species" required>
         <br>
-        <label for="chromo">Select a chromosome : </label>
-        <input type="text" id="chromo" name="chromo" required>
+        <label>Select a chromosome : </label>
+        <input type="text" name="chromo" required>
         <br>
         <input type="submit" value="Send">
     </form>
