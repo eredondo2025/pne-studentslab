@@ -175,8 +175,9 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def handle_chromosome_length(self, params):
         """
-        Endpoint 3: /chromosomeLength - Fixed integration matching karyotype structure
+        Endpoint 3: /chromosomeLength - DEFINITIVE VERSION (Solved using JSON logs!)
         """
+        # 1. Extract parameters safely using your clean dictionary style
         species = params.get("species", params.get("specie", [""]))[0].strip()
         chromo_target = params.get("chromo", [""])[0].strip()
 
@@ -184,11 +185,12 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(400)
             return
 
-        # FIXED: Calling your actual resolver method just like karyotype does!
+        # 2. Use your internal automatic translator for the species name
         resolved_species = self.resolve_species_name(species)
         if not resolved_species:
             resolved_species = species.lower().replace(" ", "_").replace("+", "_")
 
+        # 3. Fetch data from the university server path
         safe_species = urllib.parse.quote(resolved_species)
         target_url = f"https://rest.ensembl.org/info/assembly/{safe_species}"
         ensembl_data = self.fetch_ensembl_data(target_url)
@@ -197,22 +199,29 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(404)
             return
 
-        length = "Not found"
+        # 4. Loop through regions and make sure we check the name correctly
+        length = None
         for region in ensembl_data['top_level_region']:
-            if str(region.get('name')).lower() == chromo_target.lower():
+            # Standardize the region name from the server to compare it safely
+            server_chrom_name = str(region.get('name', '')).lower().strip()
+
+            if server_chrom_name == chromo_target.lower().strip():
                 length = str(region.get('length'))
                 break
 
-        if length == "Not found":
+        if not length:
             self.render_error(404)
             return
 
-        # FIXED: Loading your explicit 'length.html' file using your verified tokens
+        # 5. Load your actual local 'length.html' template
         template = self.read_html("length.html")
-        html_output = template.replace("{specie}", species) \
-            .replace("{chromosome}", chromo_target) \
-            .replace("{length}", length)
 
+        # 6. Replace using YOUR exact template tokens
+        html_output = template.replace("{species_name}", species) \
+            .replace("{chromosome_id}", chromo_target) \
+            .replace("{chromosome_length}", length)
+
+        # 7. Deliver the fully rendered webpage to your browser
         self.send_html_response(html_output)
 
     def handle_gene_lookup(self, params):
