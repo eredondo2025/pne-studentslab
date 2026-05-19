@@ -3,7 +3,7 @@ import urllib.request
 import urllib.parse
 
 # Connecting to the same port where your Python server is running
-SERVER_URL = "http://localhost:8081"
+SERVER_URL = "http://localhost:8080"
 
 
 def run_endpoint(path_route, description):
