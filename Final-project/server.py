@@ -214,6 +214,38 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
         self.send_html_response(html_output)
 
+    def handle_gene_lookup(self, params):
+        """
+        Endpoint 4: /geneLookup
+        """
+        gene_symbol = params.get("gene", [""])[0].strip()
+        is_json_requested = params.get("json", [""])[0] == "1"
+
+        if not gene_symbol:
+            self.render_error(400)
+            return
+
+        stable_id = self.get_stable_id_by_gene_symbol(gene_symbol)
+
+        if not stable_id:
+            self.render_error(404)
+            return
+
+        if is_json_requested:
+            json_payload = {"gene": gene_symbol, "id": stable_id}
+            self.send_json_response(json_payload)
+        else:
+            response_html = f"""
+            <html>
+            <body style="font-family: Arial; margin: 30px;">
+                <h2>Gene Lookup Result</h2>
+                <p>The stable identifier for gene <strong>{gene_symbol}</strong> is: <code>{stable_id}</code></p>
+                <p><a href="/">Back to Main page</a></p>
+            </body>
+            </html>
+            """
+            self.send_html_response(response_html)
+
     def handle_gene_seq(self, params):
         gene_symbol = params.get("gene", [""])[0].strip()
         is_json_requested = params.get("json", [""])[0] == "1"
@@ -245,7 +277,7 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             <body style="font-family: Arial; margin: 30px;">
                 <h2>Gene Sequence for {gene_symbol} ({stable_id})</h2>
                 <textarea rows="15" cols="80" readonly style="font-family: monospace;">{gene_sequence}</textarea>
-                <p><a href="/">Back to Dashboard</a></p>
+                <p><a href="/">Back to Main page</a></p>
             </body>
             </html>
             """
