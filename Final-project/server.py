@@ -175,9 +175,9 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def handle_chromosome_length(self, params):
         """
-        Endpoint 3: /chromosomeLength - DEFINITIVE VERSION (Solved using JSON logs!)
+        Endpoint 3: /chromosomeLength - Blinded version without external HTML file dependencies
         """
-        # 1. Extract parameters safely using your clean dictionary style
+        # 1. Extract parameters safely
         species = params.get("species", params.get("specie", [""]))[0].strip()
         chromo_target = params.get("chromo", [""])[0].strip()
 
@@ -185,7 +185,7 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(400)
             return
 
-        # 2. Use your internal automatic translator for the species name
+        # 2. Translate the species name using your working internal resolver
         resolved_species = self.resolve_species_name(species)
         if not resolved_species:
             resolved_species = species.lower().replace(" ", "_").replace("+", "_")
@@ -199,12 +199,10 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(404)
             return
 
-        # 4. Loop through regions and make sure we check the name correctly
+        # 4. Loop through regions and extract the length
         length = None
         for region in ensembl_data['top_level_region']:
-            # Standardize the region name from the server to compare it safely
             server_chrom_name = str(region.get('name', '')).lower().strip()
-
             if server_chrom_name == chromo_target.lower().strip():
                 length = str(region.get('length'))
                 break
@@ -213,15 +211,28 @@ class EnsemblBioRequestHandler(http.server.BaseHTTPRequestHandler):
             self.render_error(404)
             return
 
-        # 5. Load your actual local 'length.html' template
-        template = self.read_html("length.html")
+        # 5. HARDCODED HTML RESPONSE: This bypasses read_html() completely to prevent "File NOT FOUND" errors!
+        html_output = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Chromosome Length</title>
+        </head>
+        <body>
+            <div class="card">
+                <h2>Chromosome Data Found Successfully</h2>
+                <ul>
+                    <li><strong>Species:</strong> {species}</li>
+                    <li><strong>Chromosome:</strong> {chromo_target}</li>
+                    <li><strong>Length:</strong> {length} base pairs</li>
+                </ul>
+                <p><a href="/" style="color: #7f8c8d; text-decoration: none;">&larr; Back to Main page</a></p>
+            </div>
+        </body>
+        </html>
+        """
 
-        # 6. Replace using YOUR exact template tokens
-        html_output = template.replace("{species_name}", species) \
-            .replace("{chromosome_id}", chromo_target) \
-            .replace("{chromosome_length}", length)
-
-        # 7. Deliver the fully rendered webpage to your browser
+        # 6. Deliver the fully rendered webpage directly to your browser
         self.send_html_response(html_output)
 
     def handle_gene_lookup(self, params):
